@@ -43,14 +43,14 @@ namespace StrawhatNet.BLEDemo.ViewModels
         public MainPageViewModel(IDataRepository argDataRepository, INavigationService navService)
         {
             dataRepository = argDataRepository;
-            NavigateCommand = new DelegateCommand(() => Initialize());
+            NavigateCommand = new DelegateCommand(() => StartMeasurement());
 
             dispatcher = Windows.UI.Core.CoreWindow.GetForCurrentThread().Dispatcher;
         }
 
         public DelegateCommand NavigateCommand { get; set; }
 
-        private async void Initialize()
+        private async void StartMeasurement()
         {
             var deveiceSelector = GattDeviceService.GetDeviceSelectorFromUuid(
                 GattServiceUuids.HealthThermometer);
@@ -72,7 +72,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
                         = firstThermometerService.GetCharacteristics(
                             GattCharacteristicUuids.TemperatureMeasurement)[0];
 
-                    thermometerCharacteristic.ValueChanged += temperatureMeasurementChanged;
+                    thermometerCharacteristic.ValueChanged += TemperatureMeasurementChanged;
 
                     await thermometerCharacteristic
                         .WriteClientCharacteristicConfigurationDescriptorAsync(
@@ -93,7 +93,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
             }
         }
 
-        private async void temperatureMeasurementChanged(
+        private async void TemperatureMeasurementChanged(
             GattCharacteristic sender,
             GattValueChangedEventArgs eventArgs)
         {
@@ -101,7 +101,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
             Windows.Storage.Streams.DataReader.FromBuffer(
                 eventArgs.CharacteristicValue).ReadBytes(temperatureData);
 
-            var temperatureValue = convertTemperatureData(temperatureData);
+            var temperatureValue = ConvertTemperatureData(temperatureData);
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 () =>
@@ -110,7 +110,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
                 });
         }
 
-        private double convertTemperatureData(byte[] temperatureData)
+        private double ConvertTemperatureData(byte[] temperatureData)
         {
             UInt32 temp = (UInt32)(temperatureData[4] << 24)
                 | (UInt32)(temperatureData[3] << 8)
