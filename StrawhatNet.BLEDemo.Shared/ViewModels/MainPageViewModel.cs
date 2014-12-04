@@ -6,6 +6,7 @@ using Microsoft.Practices.Prism.Commands;
 using System;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.UI.Core;
+using Windows.Devices.Enumeration;
 
 namespace StrawhatNet.BLEDemo.ViewModels
 {
@@ -52,15 +53,14 @@ namespace StrawhatNet.BLEDemo.ViewModels
 
         private async void StartMeasurement()
         {
-            var deveiceSelector = GattDeviceService.GetDeviceSelectorFromUuid(
+            string deveiceSelector = GattDeviceService.GetDeviceSelectorFromUuid(
                 GattServiceUuids.HealthThermometer);
 
-            var themometerServices = await Windows.Devices.Enumeration
-                .DeviceInformation.FindAllAsync(deveiceSelector, null);
+            DeviceInformationCollection themometerServices = await DeviceInformation.FindAllAsync(deveiceSelector, null);
 
             if (themometerServices.Count > 0)
             {
-                var themometerService = themometerServices[0];
+                DeviceInformation themometerService = themometerServices[0];
                 ServiceNameText = "Using service: " + themometerService.Name;
 
                 GattDeviceService firstThermometerService
@@ -101,12 +101,12 @@ namespace StrawhatNet.BLEDemo.ViewModels
             Windows.Storage.Streams.DataReader.FromBuffer(
                 eventArgs.CharacteristicValue).ReadBytes(temperatureData);
 
-            var temperatureValue = ConvertTemperatureData(temperatureData);
+            var temparature = ConvertTemperatureData(temperatureData);
 
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 () =>
                 {
-                    TemperatureText = temperatureValue.ToString();
+                    TemperatureText = temparature.ToString();
                 });
         }
 
