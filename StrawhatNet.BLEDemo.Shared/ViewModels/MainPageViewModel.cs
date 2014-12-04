@@ -1,11 +1,3 @@
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
-// Copyright (c) Microsoft Corporation. All rights reserved
-
-
 using StrawhatNet.BLEDemo.Services;
 using System.Collections.Generic;
 using Microsoft.Practices.Prism.Mvvm;
@@ -17,8 +9,6 @@ using Windows.UI.Core;
 
 namespace StrawhatNet.BLEDemo.ViewModels
 {
-    // This QuickStart is documented at http://go.microsoft.com/fwlink/?LinkID=288830&clcid=0x409
-
     public class MainPageViewModel : ViewModel
     {
         IDataRepository dataRepository;
@@ -60,48 +50,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
 
         public DelegateCommand NavigateCommand { get; set; }
 
-        public List<string> DisplayItems
-        {
-            get { return dataRepository.GetFeatures(); }
-        }
-
-        // http://msdn.microsoft.com/ja-jp/library/windows/apps/dn263090.aspx
-        // http://msdn.microsoft.com/en-us/library/windows/apps/xaml/Dn264584(v=win.10).aspx
-        double convertTemperatureData(byte[] temperatureData)
-        {
-            //    // Read temperature data in IEEE 11703 floating point format
-            //    // temperatureData[0] contains flags about optional data - not used
-            //    UInt32 mantissa = ((UInt32)temperatureData[3] << 16) |
-            //        ((UInt32)temperatureData[2] << 8) |
-            //        ((UInt32)temperatureData[1]);
-
-            //    Int32 exponent = (Int32)temperatureData[4];
-
-            //    return mantissa * Math.Pow(10.0, exponent);
-
-            UInt32 temp = (UInt32)(temperatureData[4] << 24) | (UInt32)(temperatureData[3] << 8)
-                | (UInt32)(temperatureData[2] << 8) | (UInt32)temperatureData[1];
-            UInt32 mantissa = temp & 0x00FFFFFF;
-            sbyte exponent = (sbyte)((temp >> 24) & 0x000000FF);
-
-            double temparature = (double)mantissa * Math.Pow(10, exponent);
-            return temparature;
-        }
-
-        /*
-            uint32_t temp_ieee11073 = quick_ieee11073_from_float(temperature);
-            memcpy(thermTempPayload+1, &temp_ieee11073, 4);
-            ble.updateCharacteristicValue(tempChar.getValueAttribute().getHandle(), thermTempPayload, sizeof(thermTempPayload));
-         *  ...
-         
-            uint8_t  exponent = 0xFF; //exponent is -1
-            uint32_t mantissa = (uint32_t)(temperature*10);
-    
-            return ( ((uint32_t)exponent) << 24) | mantissa;
-         */
-
-
-        async void Initialize()
+        private async void Initialize()
         {
             var deveiceSelector = GattDeviceService.GetDeviceSelectorFromUuid(
                 GattServiceUuids.HealthThermometer);
@@ -119,10 +68,6 @@ namespace StrawhatNet.BLEDemo.ViewModels
 
                 if (firstThermometerService != null)
                 {
-
-                    var tmp = firstThermometerService.GetCharacteristics(
-                        GattCharacteristicUuids.TemperatureMeasurement);
-
                     GattCharacteristic thermometerCharacteristic
                         = firstThermometerService.GetCharacteristics(
                             GattCharacteristicUuids.TemperatureMeasurement)[0];
@@ -132,7 +77,6 @@ namespace StrawhatNet.BLEDemo.ViewModels
                     await thermometerCharacteristic
                         .WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.Indicate);
-                    
                 }
                 else
                 {
@@ -149,7 +93,7 @@ namespace StrawhatNet.BLEDemo.ViewModels
             }
         }
 
-        async void temperatureMeasurementChanged(
+        private async void temperatureMeasurementChanged(
             GattCharacteristic sender,
             GattValueChangedEventArgs eventArgs)
         {
@@ -166,6 +110,17 @@ namespace StrawhatNet.BLEDemo.ViewModels
                 });
         }
 
+        private double convertTemperatureData(byte[] temperatureData)
+        {
+            UInt32 temp = (UInt32)(temperatureData[4] << 24)
+                | (UInt32)(temperatureData[3] << 8)
+                | (UInt32)(temperatureData[2] << 8)
+                | (UInt32)temperatureData[1];
+            UInt32 mantissa = temp & 0x00FFFFFF;
+            sbyte exponent = (sbyte)((temp >> 24) & 0x000000FF);
 
+            double temparature = (double)mantissa * Math.Pow(10, exponent);
+            return temparature;
+        }
     }
 }

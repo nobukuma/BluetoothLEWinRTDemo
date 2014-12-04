@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Services\DataRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IDataRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainPageViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\UserInputPageViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="$(MSBuildThisFileDirectory)App.xaml">

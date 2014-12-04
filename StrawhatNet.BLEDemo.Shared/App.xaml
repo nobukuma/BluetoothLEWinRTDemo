@@ -9,7 +9,6 @@
             </ResourceDictionary.MergedDictionaries>
             <x:String x:Key="AppName">HTPでのBLE連携</x:String>
             <x:String x:Key="MainPageTitle">Main Page</x:String>
-            <x:String x:Key="UserPageTitle">User Input Page</x:String>
         </ResourceDictionary>
     </Application.Resources>
 </prism:MvvmAppBase>
